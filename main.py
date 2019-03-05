@@ -104,7 +104,13 @@ def train():
     d_optim = tf.train.AdamOptimizer(lr_v, beta1=beta1).minimize(d_loss, var_list=d_vars)
 
     ###========================== RESTORE MODEL =============================###
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
+    
+    ### Add branch initialize session with Cloud TPU
+    tpu_grpc_url = TPUClusterResolver(tpu=[os.environ['TPU_NAME']]).get_master()
+    print("Session initialized with TPU")
+    sess = tf.Session(tpu_grpc_url)
+
+
     tl.layers.initialize_global_variables(sess)
     if tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_{}.npz'.format(tl.global_flag['mode']), network=net_g) is False:
         tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_{}_init.npz'.format(tl.global_flag['mode']), network=net_g)
