@@ -13,6 +13,18 @@ from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
 from utils import *
 from config import config, log_config
 
+batch_size = config.TRAIN.batch_size
+lr_init = config.TRAIN.lr_init
+beta1 = config.TRAIN.beta1
+## initialize G
+n_epoch_init = config.TRAIN.n_epoch_init
+## adversarial learning (SRGAN)
+n_epoch = config.TRAIN.n_epoch
+lr_decay = config.TRAIN.lr_decay
+decay_every = config.TRAIN.decay_every
+
+ni = int(np.sqrt(batch_size))
+
 def train_x2():
     ## create folders to save result images and trained model
     save_dir_ginit = "samples/{}_ginit".format(tl.global_flag['mode'])
