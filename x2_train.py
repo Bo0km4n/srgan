@@ -133,7 +133,7 @@ def train_x2():
     # sample_imgs = tl.vis.read_images(train_hr_img_list[0:batch_size], path=config.TRAIN.hr_img_path, n_threads=32) # if no pre-load train set
     sample_imgs_384 = tl.prepro.threading_data(sample_imgs, fn=crop_sub_imgs_fn, is_random=False)
     print('sample HR sub-image:', sample_imgs_384.shape, sample_imgs_384.min(), sample_imgs_384.max())
-    sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn)
+    sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn_x2)
     print('sample LR sub-image:', sample_imgs_192.shape, sample_imgs_192.min(), sample_imgs_192.max())
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_ginit + '/_train_sample_192.png')
     tl.vis.save_images(sample_imgs_384, [ni, ni], save_dir_ginit + '/_train_sample_384.png')
@@ -162,7 +162,7 @@ def train_x2():
         for idx in range(0, len(train_hr_imgs), batch_size):
             step_time = time.time()
             b_imgs_384 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
-            b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn)
+            b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
             ## update G
             errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_384})
             print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
