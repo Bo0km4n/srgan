@@ -312,9 +312,9 @@ def train_x2():
 
     ###====================== PRE-LOAD DATA ===========================###
     train_hr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.hr_img_path, regx='.*.png', printable=False))
-    train_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K_train_LR_bicubic\ 3/x2", regx='.*.png', printable=False))
+    train_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K_train_LR_bicubic 3/X2", regx='.*.png', printable=False))
     valid_hr_img_list = sorted(tl.files.load_file_list(path=config.VALID.hr_img_path, regx='.*.png', printable=False))
-    valid_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K_valid_LR_bicubic\ 3/X2", regx='.*.png', printable=False))
+    valid_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K_valid_LR_bicubic 3/X2", regx='.*.png', printable=False))
 
     ## If your machine have enough memory, please pre-load the whole train set.
     train_hr_imgs = tl.vis.read_images(train_hr_img_list, path=config.TRAIN.hr_img_path, n_threads=32)
