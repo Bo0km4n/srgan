@@ -27,3 +27,11 @@ def downsample_fn(x):
     x = x - 1.
     # x = (x - 0.5)*2
     return x
+
+def downsample_fn_x2(x):
+    # We obtained the LR images by downsampling the HR images using bicubic kernel with downsampling factor r = 4.
+    x = imresize(x, size=[192, 192], interp='bicubic', mode=None)
+    x = x / (255. / 2.)
+    x = x - 1.
+    # x = (x - 0.5)*2
+    return x
