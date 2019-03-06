@@ -103,7 +103,9 @@ def train_x2():
     ###========================== RESTORE MODEL =============================###
     
     ### Add branch initialize session with Cloud TPU
-    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
+    config.gpu_options.allow_glowth = True
+    sess = tf.Session(config=config)
     tl.layers.initialize_global_variables(sess)
 
     if tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_{}.npz'.format(tl.global_flag['mode']), network=net_g) is False:
