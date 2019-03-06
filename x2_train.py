@@ -136,8 +136,6 @@ def train_x2(config):
     print('sample HR sub-image:', sample_imgs_384.shape, sample_imgs_384.min(), sample_imgs_384.max())
     sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn_x2)
     print('sample LR sub-image:', sample_imgs_192.shape, sample_imgs_192.min(), sample_imgs_192.max())
-    from IPython.core.debugger import Tracer; Tracer()() 
-    
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_ginit + '/_train_sample_192.png')
     tl.vis.save_images(sample_imgs_384, [ni, ni], save_dir_ginit + '/_train_sample_384.png')
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_gan + '/_train_sample_192.png')
@@ -160,9 +158,6 @@ def train_x2(config):
             b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
             b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
             b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
-
-            from IPython.core.debugger import Tracer; Tracer()() 
-
             errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_384})
             print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
             total_mse_loss += errM
