@@ -12,24 +12,23 @@ import tensorlayer as tl
 from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
 from utils import *
 from x2_train import *
-from config import config, log_config
+from conf import config, log_config
 
 ###====================== HYPER-PARAMETERS ===========================###
 ## Adam
-batch_size = config.TRAIN.batch_size
-lr_init = config.TRAIN.lr_init
-beta1 = config.TRAIN.beta1
-## initialize G
-n_epoch_init = config.TRAIN.n_epoch_init
-## adversarial learning (SRGAN)
-n_epoch = config.TRAIN.n_epoch
-lr_decay = config.TRAIN.lr_decay
-decay_every = config.TRAIN.decay_every
-
-ni = int(np.sqrt(batch_size))
-
 
 def train():
+    batch_size = config.TRAIN.batch_size
+    lr_init = config.TRAIN.lr_init
+    beta1 = config.TRAIN.beta1
+    ## initialize G
+    n_epoch_init = config.TRAIN.n_epoch_init
+    ## adversarial learning (SRGAN)
+    n_epoch = config.TRAIN.n_epoch
+    lr_decay = config.TRAIN.lr_decay
+    decay_every = config.TRAIN.decay_every
+
+    ni = int(np.sqrt(batch_size))
     ## create folders to save result images and trained model
     save_dir_ginit = "samples/{}_ginit".format(tl.global_flag['mode'])
     save_dir_gan = "samples/{}_gan".format(tl.global_flag['mode'])
@@ -312,7 +311,7 @@ if __name__ == '__main__':
     if tl.global_flag['mode'] == 'srgan':
         train()
     elif tl.global_flag['mode'] == 'x2':
-        train_x2()
+        train_x2(config)
     elif tl.global_flag['mode'] == 'evaluate':
         evaluate()
     else:
