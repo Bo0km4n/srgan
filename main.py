@@ -410,7 +410,7 @@ def train_x2():
     sample_imgs_384 = tl.prepro.threading_data(sample_imgs, fn=crop_sub_imgs_fn, is_random=False)
     print('sample HR sub-image:', sample_imgs_384.shape, sample_imgs_384.min(), sample_imgs_384.max())
     sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn_x2)
-    print('sample LR sub-image:', sample_imgs_96.shape, sample_imgs_96.min(), sample_imgs_96.max())
+    print('sample LR sub-image:', sample_imgs_192.shape, sample_imgs_192.min(), sample_imgs_192.max())
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_ginit + '/_train_sample_192.png')
     tl.vis.save_images(sample_imgs_384, [ni, ni], save_dir_ginit + '/_train_sample_384.png')
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_gan + '/_train_sample_192.png')
