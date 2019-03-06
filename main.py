@@ -9,7 +9,7 @@ import logging, scipy
 
 import tensorflow as tf
 import tensorlayer as tl
-from model import SRGAN_g, SRGAN_d, Vgg19_simple_api
+from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
 from utils import *
 from config import config, log_config
 
@@ -330,16 +330,16 @@ def train_x2():
 
     ###========================== DEFINE MODEL ============================###
     ## train inference
-    t_image = tf.placeholder('float32', [batch_size, 96, 96, 3], name='t_image_input_to_SRGAN_generator')
-    t_target_image = tf.placeholder('float32', [batch_size, 192, 192, 3], name='t_target_image')
+    t_image = tf.placeholder('float32', [batch_size, 192, 192, 3], name='t_image_input_to_SRGAN_generator')
+    t_target_image = tf.placeholder('float32', [batch_size, 384, 384, 3], name='t_target_image')
 
-    net_g = SRGAN_g(t_image, is_train=True, reuse=False)
+    net_g = SRGAN_g2x(t_image, is_train=True, reuse=False)
     net_d, logits_real = SRGAN_d(t_target_image, is_train=True, reuse=False)
     _, logits_fake = SRGAN_d(net_g.outputs, is_train=True, reuse=True)
 
-    net_g.print_params(True)
+    net_g.print_params(False)
     net_g.print_layers()
-    net_d.print_params(True)
+    net_d.print_params(False)
     net_d.print_layers()
 
     ## vgg inference. 0, 1, 2, 3 BILINEAR NEAREST BICUBIC AREA
@@ -352,7 +352,7 @@ def train_x2():
     _, vgg_predict_emb = Vgg19_simple_api((t_predict_image_224 + 1) / 2, reuse=True)
 
     ## test inference
-    net_g_test = SRGAN_g(t_image, is_train=False, reuse=True)
+    net_g_test = SRGAN_g2x(t_image, is_train=False, reuse=True)
 
     # ###========================== DEFINE TRAIN OPS ==========================###
     d_loss1 = tl.cost.sigmoid_cross_entropy(logits_real, tf.ones_like(logits_real), name='d1')
@@ -379,12 +379,9 @@ def train_x2():
     ###========================== RESTORE MODEL =============================###
     
     ### Add branch initialize session with Cloud TPU
-    tpu_grpc_url = TPUClusterResolver(tpu=[os.environ['TPU_NAME']]).get_master()
-    print("Session initialized with TPU")
-    sess = tf.Session(tpu_grpc_url)
-
-
+    sess = tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False))
     tl.layers.initialize_global_variables(sess)
+
     if tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_{}.npz'.format(tl.global_flag['mode']), network=net_g) is False:
         tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/g_{}_init.npz'.format(tl.global_flag['mode']), network=net_g)
     tl.files.load_and_assign_npz(sess=sess, name=checkpoint_dir + '/d_{}.npz'.format(tl.global_flag['mode']), network=net_d)
