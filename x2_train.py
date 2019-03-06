@@ -159,7 +159,10 @@ def train_x2(config):
             b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
             b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
             b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
-
+            errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_384})
+            print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
+            total_mse_loss += errM
+            n_iter += 1
         ## If your machine have enough memory, please pre-load the whole train set.
         # for idx in range(0, len(train_hr_imgs), batch_size):
         #     step_time = time.time()
@@ -170,18 +173,18 @@ def train_x2(config):
         #     print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
         #     total_mse_loss += errM
         #     n_iter += 1
-        # log = "[*] Epoch: [%2d/%2d] time: %4.4fs, mse: %.8f" % (epoch, n_epoch_init, time.time() - epoch_time, total_mse_loss / n_iter)
-        # print(log)
+        log = "[*] Epoch: [%2d/%2d] time: %4.4fs, mse: %.8f" % (epoch, n_epoch_init, time.time() - epoch_time, total_mse_loss / n_iter)
+        print(log)
 
         ## quick evaluation on train set
-        if (epoch != 0) and (epoch % 10 == 0):
-            out = sess.run(net_g_test.outputs, {t_image: sample_imgs_192})  #; print('gen sub-image:', out.shape, out.min(), out.max())
-            print("[*] save images")
-            tl.vis.save_images(out, [ni, ni], save_dir_ginit + '/train_%d.png' % epoch)
+        # if (epoch != 0) and (epoch % 10 == 0):
+        #     out = sess.run(net_g_test.outputs, {t_image: sample_imgs_192})  #; print('gen sub-image:', out.shape, out.min(), out.max())
+        #     print("[*] save images")
+        #     tl.vis.save_images(out, [ni, ni], save_dir_ginit + '/train_%d.png' % epoch)
 
         ## save model
-        if (epoch != 0) and (epoch % 10 == 0):
-            tl.files.save_npz(net_g.all_params, name=checkpoint_dir + '/g_{}_init.npz'.format(tl.global_flag['mode']), sess=sess)
+        # if (epoch != 0) and (epoch % 10 == 0):
+        #     tl.files.save_npz(net_g.all_params, name=checkpoint_dir + '/g_{}_init.npz'.format(tl.global_flag['mode']), sess=sess)
 
     ###========================= train GAN (SRGAN) =========================###
     for epoch in range(0, n_epoch + 1):
