@@ -3,6 +3,7 @@
 .DS_Store
 *.npz
 sample/
+samples/
 checkpoint/
 *.npy
 __pycache__/
