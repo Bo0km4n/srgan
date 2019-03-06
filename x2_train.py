@@ -13,19 +13,21 @@ from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
 from utils import *
 from config import config, log_config
 
-batch_size = config.TRAIN.batch_size
-lr_init = config.TRAIN.lr_init
-beta1 = config.TRAIN.beta1
+batch_size = conf.TRAIN.batch_size
+lr_init = conf.TRAIN.lr_init
+beta1 = conf.TRAIN.beta1
 ## initialize G
-n_epoch_init = config.TRAIN.n_epoch_init
+n_epoch_init = conf.TRAIN.n_epoch_init
 ## adversarial learning (SRGAN)
-n_epoch = config.TRAIN.n_epoch
-lr_decay = config.TRAIN.lr_decay
-decay_every = config.TRAIN.decay_every
+n_epoch = conf.TRAIN.n_epoch
+lr_decay = conf.TRAIN.lr_decay
+decay_every = conf.TRAIN.decay_every
 
 ni = int(np.sqrt(batch_size))
 
 def train_x2():
+    global config
+    conf = config
     ## create folders to save result images and trained model
     save_dir_ginit = "samples/{}_ginit".format(tl.global_flag['mode'])
     save_dir_gan = "samples/{}_gan".format(tl.global_flag['mode'])
@@ -35,19 +37,19 @@ def train_x2():
     tl.files.exists_or_mkdir(checkpoint_dir)
 
     ###====================== PRE-LOAD DATA ===========================###
-    train_hr_img_list = sorted(tl.files.load_file_list(path=config.TRAIN.hr_img_path, regx='.*.png', printable=False))
+    train_hr_img_list = sorted(tl.files.load_file_list(path=conf.TRAIN.hr_img_path, regx='.*.png', printable=False))
     train_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K/DIV2K_train_LR_bicubic 3/X2", regx='.*.png', printable=False))
-    valid_hr_img_list = sorted(tl.files.load_file_list(path=config.VALID.hr_img_path, regx='.*.png', printable=False))
+    valid_hr_img_list = sorted(tl.files.load_file_list(path=conf.VALID.hr_img_path, regx='.*.png', printable=False))
     valid_lr_img_list = sorted(tl.files.load_file_list(path="../DIV2K/DIV2K_valid_LR_bicubic 3/X2", regx='.*.png', printable=False))
 
     ## If your machine have enough memory, please pre-load the whole train set.
-    train_hr_imgs = tl.vis.read_images(train_hr_img_list, path=config.TRAIN.hr_img_path, n_threads=32)
+    train_hr_imgs = tl.vis.read_images(train_hr_img_list, path=conf.TRAIN.hr_img_path, n_threads=32)
     # for im in train_hr_imgs:
     #     print(im.shape)
-    # valid_lr_imgs = tl.vis.read_images(valid_lr_img_list, path=config.VALID.lr_img_path, n_threads=32)
+    # valid_lr_imgs = tl.vis.read_images(valid_lr_img_list, path=conf.VALID.lr_img_path, n_threads=32)
     # for im in valid_lr_imgs:
     #     print(im.shape)
-    # valid_hr_imgs = tl.vis.read_images(valid_hr_img_list, path=config.VALID.hr_img_path, n_threads=32)
+    # valid_hr_imgs = tl.vis.read_images(valid_hr_img_list, path=conf.VALID.hr_img_path, n_threads=32)
     # for im in valid_hr_imgs:
     #     print(im.shape)
     # exit()
@@ -104,7 +106,7 @@ def train_x2():
     
     ### Add branch initialize session with Cloud TPU
     config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
-    config.gpu_options.allow_glowth = True
+    conf.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     tl.layers.initialize_global_variables(sess)
 
@@ -132,7 +134,7 @@ def train_x2():
     ###============================= TRAINING ===============================###
     ## use first `batch_size` of train set to have a quick test during training
     sample_imgs = train_hr_imgs[0:batch_size]
-    # sample_imgs = tl.vis.read_images(train_hr_img_list[0:batch_size], path=config.TRAIN.hr_img_path, n_threads=32) # if no pre-load train set
+    # sample_imgs = tl.vis.read_images(train_hr_img_list[0:batch_size], path=conf.TRAIN.hr_img_path, n_threads=32) # if no pre-load train set
     sample_imgs_384 = tl.prepro.threading_data(sample_imgs, fn=crop_sub_imgs_fn, is_random=False)
     print('sample HR sub-image:', sample_imgs_384.shape, sample_imgs_384.min(), sample_imgs_384.max())
     sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn_x2)
@@ -156,7 +158,7 @@ def train_x2():
         for idx in range(0, len(train_hr_img_list), batch_size):
             step_time = time.time()
             b_imgs_list = train_hr_img_list[idx : idx + batch_size]
-            b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
+            b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=conf.TRAIN.hr_img_path)
             b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
             b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
 
@@ -205,7 +207,7 @@ def train_x2():
         # for idx in range(0, len(train_hr_img_list), batch_size):
         #     step_time = time.time()
         #     b_imgs_list = train_hr_img_list[idx : idx + batch_size]
-        #     b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
+        #     b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=conf.TRAIN.hr_img_path)
         #     b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
         #     b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn)
 
