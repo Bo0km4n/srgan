@@ -55,7 +55,7 @@ def train_x2():
     ###========================== DEFINE MODEL ============================###
     ## train inference
     t_image = tf.placeholder('float32', [batch_size, 192, 192, 3], name='t_image_input_to_SRGAN_generator')
-    t_target_image = tf.placeholder('float32', [batch_size, 386, 386, 3], name='t_target_image')
+    t_target_image = tf.placeholder('float32', [batch_size, 384, 384, 3], name='t_target_image')
 
     net_g = SRGAN_g2x(t_image, is_train=True, reuse=False)
     net_d, logits_real = SRGAN_d(t_target_image, is_train=True, reuse=False)
@@ -131,14 +131,14 @@ def train_x2():
     ## use first `batch_size` of train set to have a quick test during training
     sample_imgs = train_hr_imgs[0:batch_size]
     # sample_imgs = tl.vis.read_images(train_hr_img_list[0:batch_size], path=config.TRAIN.hr_img_path, n_threads=32) # if no pre-load train set
-    sample_imgs_386 = tl.prepro.threading_data(sample_imgs, fn=crop_sub_imgs_fn, is_random=False)
-    print('sample HR sub-image:', sample_imgs_386.shape, sample_imgs_386.min(), sample_imgs_386.max())
-    sample_imgs_192 = tl.prepro.threading_data(sample_imgs_386, fn=downsample_fn)
+    sample_imgs_384 = tl.prepro.threading_data(sample_imgs, fn=crop_sub_imgs_fn, is_random=False)
+    print('sample HR sub-image:', sample_imgs_384.shape, sample_imgs_384.min(), sample_imgs_384.max())
+    sample_imgs_192 = tl.prepro.threading_data(sample_imgs_384, fn=downsample_fn)
     print('sample LR sub-image:', sample_imgs_192.shape, sample_imgs_192.min(), sample_imgs_192.max())
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_ginit + '/_train_sample_192.png')
-    tl.vis.save_images(sample_imgs_386, [ni, ni], save_dir_ginit + '/_train_sample_386.png')
+    tl.vis.save_images(sample_imgs_384, [ni, ni], save_dir_ginit + '/_train_sample_384.png')
     tl.vis.save_images(sample_imgs_192, [ni, ni], save_dir_gan + '/_train_sample_192.png')
-    tl.vis.save_images(sample_imgs_386, [ni, ni], save_dir_gan + '/_train_sample_386.png')
+    tl.vis.save_images(sample_imgs_384, [ni, ni], save_dir_gan + '/_train_sample_384.png')
 
     ###========================= initialize G ====================###
     ## fixed learning rate
@@ -161,10 +161,10 @@ def train_x2():
         ## If your machine have enough memory, please pre-load the whole train set.
         for idx in range(0, len(train_hr_imgs), batch_size):
             step_time = time.time()
-            b_imgs_386 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
-            b_imgs_192 = tl.prepro.threading_data(b_imgs_386, fn=downsample_fn)
+            b_imgs_384 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
+            b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn)
             ## update G
-            errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_386})
+            errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_384})
             print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
             total_mse_loss += errM
             n_iter += 1
@@ -210,12 +210,12 @@ def train_x2():
         ## If your machine have enough memory, please pre-load the whole train set.
         for idx in range(0, len(train_hr_imgs), batch_size):
             step_time = time.time()
-            b_imgs_386 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
-            b_imgs_192 = tl.prepro.threading_data(b_imgs_386, fn=downsample_fn_x2)
+            b_imgs_384 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
+            b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
             ## update D
-            errD, _ = sess.run([d_loss, d_optim], {t_image: b_imgs_192, t_target_image: b_imgs_386})
+            errD, _ = sess.run([d_loss, d_optim], {t_image: b_imgs_192, t_target_image: b_imgs_384})
             ## update G
-            errG, errM, errV, errA, _ = sess.run([g_loss, mse_loss, vgg_loss, g_gan_loss, g_optim], {t_image: b_imgs_192, t_target_image: b_imgs_386})
+            errG, errM, errV, errA, _ = sess.run([g_loss, mse_loss, vgg_loss, g_gan_loss, g_optim], {t_image: b_imgs_192, t_target_image: b_imgs_384})
             print("Epoch [%2d/%2d] %4d time: %4.4fs, d_loss: %.8f g_loss: %.8f (mse: %.6f vgg: %.6f adv: %.6f)" %
                   (epoch, n_epoch, n_iter, time.time() - step_time, errD, errG, errM, errV, errA))
             total_d_loss += errD
