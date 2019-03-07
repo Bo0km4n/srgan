@@ -17,9 +17,9 @@ def train_x2(config):
     lr_init = config.TRAIN.lr_init
     beta1 = config.TRAIN.beta1
     ## initialize G
-    n_epoch_init = config.TRAIN.n_epoch_init
+    n_epoch_init = 10
     ## adversarial learning (SRGAN)
-    n_epoch = config.TRAIN.n_epoch
+    n_epoch = 10
     lr_decay = config.TRAIN.lr_decay
     decay_every = config.TRAIN.decay_every
 
