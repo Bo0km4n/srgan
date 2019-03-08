@@ -303,15 +303,19 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--mode', type=str, default='srgan', help='srgan, evaluate')
+    parser.add_argument('--epoch_init', type=int, default=100, help='init epoch')
+    parser.add_argument('--epoch', type=int, default=1000, help='total epoch')
 
     args = parser.parse_args()
 
     tl.global_flag['mode'] = args.mode
+    epoch_init = args.epoch_init
+    epoch = args.epoch
 
     if tl.global_flag['mode'] == 'srgan':
         train()
     elif tl.global_flag['mode'] == 'x2':
-        train_x2(config)
+        train_x2(config, epoch_init, epoch)
     elif tl.global_flag['mode'] == 'evaluate':
         evaluate()
     else:

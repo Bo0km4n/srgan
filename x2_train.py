@@ -11,15 +11,19 @@ import tensorflow as tf
 import tensorlayer as tl
 from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
 from utils import *
+import logging
 
-def train_x2(config):
+def train_x2(config, epoch_init, epoch):
+    # logging
+    logging.basicConfig(filename='logfile/logger_x2.log', level=logging.DEBUG)
+
     batch_size = config.TRAIN.batch_size
     lr_init = config.TRAIN.lr_init
     beta1 = config.TRAIN.beta1
     ## initialize G
-    n_epoch_init = 10
+    n_epoch_init = epoch_init
     ## adversarial learning (SRGAN)
-    n_epoch = 10
+    n_epoch = epoch
     lr_decay = config.TRAIN.lr_decay
     decay_every = config.TRAIN.decay_every
 
@@ -30,7 +34,7 @@ def train_x2(config):
     save_dir_gan = "samples/{}_gan".format(tl.global_flag['mode'])
     tl.files.exists_or_mkdir(save_dir_ginit)
     tl.files.exists_or_mkdir(save_dir_gan)
-    checkpoint_dir = "checkpoint_x2"  # checkpoint_resize_conv
+    checkpoint_dir = "checkpoint/x2"  # checkpoint_resize_conv
     tl.files.exists_or_mkdir(checkpoint_dir)
 
     ###====================== PRE-LOAD DATA ===========================###
@@ -229,6 +233,7 @@ def train_x2(config):
         log = "[*] Epoch: [%2d/%2d] time: %4.4fs, d_loss: %.8f g_loss: %.8f" % (epoch, n_epoch, time.time() - epoch_time, total_d_loss / n_iter,
                                                                                 total_g_loss / n_iter)
         print(log)
+        logging.info(log)
 
         ## quick evaluation on train set
         if (epoch != 0) and (epoch % 10 == 0):
@@ -240,3 +245,4 @@ def train_x2(config):
         if (epoch != 0) and (epoch % 10 == 0):
             tl.files.save_npz(net_g.all_params, name=checkpoint_dir + '/g_{}.npz'.format(tl.global_flag['mode']), sess=sess)
             tl.files.save_npz(net_d.all_params, name=checkpoint_dir + '/d_{}.npz'.format(tl.global_flag['mode']), sess=sess)
+            logging.info("[*] Epoch[%d] save model" % epoch)
