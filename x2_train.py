@@ -15,7 +15,7 @@ import logging
 
 def train_x2(config, epoch_init, epoch):
     # logging
-    logging.basicConfig(filename='logfile/logger_x2.log', level=logging.DEBUG)
+    logging.basicConfig(filename='logfile/logger_x2.log', level=logging.INFO)
 
     batch_size = config.TRAIN.batch_size
     lr_init = config.TRAIN.lr_init
