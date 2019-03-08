@@ -7,3 +7,4 @@ samples/
 checkpoint/
 *.npy
 __pycache__/
+logfile/*.log
