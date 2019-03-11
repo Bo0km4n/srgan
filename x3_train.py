@@ -178,6 +178,7 @@ def train_x3(config, epoch_init, epoch):
             n_iter += 1
         log = "[*] Epoch: [%2d/%2d] time: %4.4fs, mse: %.8f" % (epoch, n_epoch_init, time.time() - epoch_time, total_mse_loss / n_iter)
         print(log)
+        logging.info(log)
 
         ## quick evaluation on train set
         # if (epoch != 0) and (epoch % 10 == 0):
