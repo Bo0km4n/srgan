@@ -9,7 +9,7 @@ import logging, scipy
 
 import tensorflow as tf
 import tensorlayer as tl
-from model import SRGAN_g, SRGAN_d, SRGAN_g2x, SRGAN_d2, Vgg19_simple_api
+from model import SRGAN_g, SRGAN_d, SRGAN_g2x, Vgg19_simple_api
 from utils import *
 import logging
 
