@@ -17,7 +17,7 @@ def train_x3(config, epoch_init, epoch):
     # logging
     logging.basicConfig(filename='logfile/logger_x3.log', level=logging.INFO)
 
-    batch_size = config.TRAIN.batch_size
+    batch_size = 16
     lr_init = config.TRAIN.lr_init
     beta1 = config.TRAIN.beta1
     ## initialize G
@@ -155,27 +155,27 @@ def train_x3(config, epoch_init, epoch):
 
         ## If your machine cannot load all images into memory, you should use
         ## this one to load batch of images while training.
-        # random.shuffle(train_hr_img_list)
-        # for idx in range(0, len(train_hr_img_list), batch_size):
-        #     step_time = time.time()
-        #     b_imgs_list = train_hr_img_list[idx : idx + batch_size]
-        #     b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
-        #     b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
-        #     b_imgs_192 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x2)
-        #     errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_192, t_target_image: b_imgs_384})
-        #     print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
-        #     total_mse_loss += errM
-        #     n_iter += 1
-        ## If your machine have enough memory, please pre-load the whole train set.
-        for idx in range(0, len(train_hr_imgs), batch_size):
+        random.shuffle(train_hr_img_list)
+        for idx in range(0, len(train_hr_img_list), batch_size):
             step_time = time.time()
-            b_imgs_384 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
+            b_imgs_list = train_hr_img_list[idx : idx + batch_size]
+            b_imgs = tl.prepro.threading_data(b_imgs_list, fn=get_imgs_fn, path=config.TRAIN.hr_img_path)
+            b_imgs_384 = tl.prepro.threading_data(b_imgs, fn=crop_sub_imgs_fn, is_random=True)
             b_imgs_128 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x3)
-            ## update G
             errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_128, t_target_image: b_imgs_384})
             print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
             total_mse_loss += errM
             n_iter += 1
+        ## If your machine have enough memory, please pre-load the whole train set.
+        # for idx in range(0, len(train_hr_imgs), batch_size):
+        #     step_time = time.time()
+        #     b_imgs_384 = tl.prepro.threading_data(train_hr_imgs[idx:idx + batch_size], fn=crop_sub_imgs_fn, is_random=True)
+        #     b_imgs_128 = tl.prepro.threading_data(b_imgs_384, fn=downsample_fn_x3)
+        #     ## update G
+        #     errM, _ = sess.run([mse_loss, g_optim_init], {t_image: b_imgs_128, t_target_image: b_imgs_384})
+        #     print("Epoch [%2d/%2d] %4d time: %4.4fs, mse: %.8f " % (epoch, n_epoch_init, n_iter, time.time() - step_time, errM))
+        #     total_mse_loss += errM
+        #     n_iter += 1
         log = "[*] Epoch: [%2d/%2d] time: %4.4fs, mse: %.8f" % (epoch, n_epoch_init, time.time() - epoch_time, total_mse_loss / n_iter)
         print(log)
         logging.info(log)
